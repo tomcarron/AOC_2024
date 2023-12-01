@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"bufio"
+	"strings"
+	"regexp"
 )
 // get first rune, check if int if no go to second
 func calc_value(s string) string {
@@ -43,7 +45,8 @@ func second_val(s string) int {
 	s2:=reverse_str(s)
 	return first_val(s2)
 }
-func main() {
+
+func part1() {
 	// open the file using Open() function from os library
 	file, err := os.Open("input")
 	if err != nil {
@@ -66,21 +69,99 @@ func main() {
 	
 		total = total + num
 	}
-    // check for the error that occurred during the scanning
-    
-    if err := scanner.Err(); err != nil {
+	// check for the error that occurred during the scanning
+	
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-    
+	
 	// Close the file at the end of the program
 	file.Close()
-	fmt.Println(total)
+	fmt.Println("part 1",total)
+}
 
-/* 	const test string = "a1th6k3l"
-	fmt.Println(test)
-	fmt.Println(first_val(test))
-	fmt.Println(reverse_str(test))
-	fmt.Println(second_val(test))
-	fmt.Println(calc_value(test)) */
+
+func calc_val_2(s string) (value string) {	
+	words :=[]string{"zero","one","two","three","four","five","six","seven","eight","nine"}
+	nums :=[]string{"0","1","2","3","4","5","6","7","8","9"}
+	// Create a regex pattern 
+	pattern := strings.Join(append(nums, words...), "|") //appending nums with words (... unpacks words so theyre appended one by one) Join concatenates the elements of its first argument to create a single string. (with "|" as seperator)
+	regex := regexp.MustCompile(pattern)		//makes a regex pattern to search with
+
+	// Find matches in s
+	matches := regex.FindAllString(s, -1) 
+
+	// Extract the answers
+	firstValue := matches[0]
+	lastValue := matches[len(matches)-1]
+
+	// Map words to nums
+	wordToNum := make(map[string]string)
+	for i, word := range words {
+		wordToNum[word] = nums[i]
+	}
+
+	// Replace words with nums only if not already in num form
+	if num, exists := wordToNum[firstValue]; exists {
+		firstValue = num
+	}
+	if num, exists := wordToNum[lastValue]; exists {
+		lastValue = num
+	}
+
+
+	var result string = firstValue+lastValue
+	return result
+}
+
+
+
+func part2() {
+	// open the file using Open() function from os library
+	file, err := os.Open("input")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// read the file line by line using a scanner
+	scanner := bufio.NewScanner(file)
+	var total int = 0
+	for scanner.Scan() {
+		//Print the line
+		//fmt.Println(scanner.Text())
+		num, err := strconv.Atoi(calc_val_2(scanner.Text()))
+		fmt.Println(scanner.Text(),num)
+
+		if err != nil {
+			// Handle the error if the conversion fails
+			fmt.Println("Error:", err)
+			return
+		}
+	
+		total = total + num
+	}
+	// check for the error that occurred during the scanning
+	
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	
+	// Close the file at the end of the program
+	file.Close()
+	fmt.Println("part 2",total)
+}
+
+func main() {
+	//part1()
+
+	part2()
+
+ 	//const test string = "xftwo3af4nine0"
+	//fmt.Println(test)
+	//fmt.Println(first_val(test))
+	//fmt.Println(reverse_str(test))
+	//fmt.Println(second_val(test))
+	//fmt.Println(calc_value(test))
+	//fmt.Println(calc_val_2(test)) 
 	
 }
